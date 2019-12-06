@@ -1,0 +1,4 @@
+﻿  AoC4.cpp
+C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC4\AoC4.cpp(13,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC4\AoC4.cpp(68,20): warning C4018: '<': signed/unsigned mismatch
+  AoC4.vcxproj -> C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC4\Debug\AoC4.exe
