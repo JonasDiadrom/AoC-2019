@@ -14,8 +14,10 @@ class intComputer {
 	int IP;
 	std::map<int, operation*> operations;
 	bool stop = false;
+	std::ostream& outStream;
+	std::istream& inStream;
 public:
-	intComputer(std::vector<int> memory, int startAddress);
+	intComputer(std::vector<int> memory, int startAddress, std::ostream& outStream, std::istream& inStream);
 	void run();
 	int getAt(int address) { return memory[address]; }
 	void setIP(int newIP) { IP = newIP; }
@@ -23,6 +25,8 @@ public:
 	void writeToAddress(int index, int value);
 	void halt() { stop = true; }
 	std::vector<int> getMemRange(int index, int length);
+	std::ostream& getOutStream() { return outStream; }
+	std::istream& getInStream() { return inStream; }
 };
 
 std::vector<int> intComputer::getMemRange(int index, int length) {
@@ -90,7 +94,10 @@ class opInput : public operation {
 	void runSpecific(std::vector<int> params) override {
 		int input;
 		std::cout << "Input: ";
-		std::cin >> input;
+		PC->getInStream() >> input;
+		if (&(PC->getInStream()) != &(std::cin)) {
+			std::cout << input << std::endl;
+		}
 		PC->writeToAddress(PC->getAt(PC->getIP() + 1), input);
 	}
 public:
@@ -100,7 +107,10 @@ public:
 class opOutput : public operation {
 	void runSpecific(std::vector<int> params) override {
 		std::cout << "Output: ";
-		std::cout << params[1] << std::endl;
+		PC->getOutStream() << params[1] << std::endl;
+		if (&(PC->getOutStream()) != &(std::cout)) {
+			std::cout << params[1] << std::endl;
+		}
 	}
 public:
 	opOutput(intComputer* PC) : operation(4, 2, PC) {}
@@ -162,7 +172,7 @@ public:
 
 
 
-intComputer::intComputer(std::vector<int> memory, int startAddress) : memory(memory), IP(startAddress) {
+intComputer::intComputer(std::vector<int> memory, int startAddress, std::ostream& outStream, std::istream& inStream) : memory(memory), IP(startAddress), outStream(outStream), inStream(inStream) {
 	operations[1] = new opAdd(this);
 	operations[2] = new opMultiply(this);
 	operations[3] = new opInput(this);
@@ -201,9 +211,16 @@ int main()
 	while (std::getline(input, cutInt, ',')) {
 		intcode.push_back(std::stoi(cutInt));
 	}
+	
+	//std::filebuf fb;
+	//fb.open("Text.txt",std::ios::out);
+	//std::ostream outputstream(&fb);
+	//intComputer PC(intcode, 0, outputstream, std::cin);
 
-	intComputer PC(intcode, 0);
+	intComputer PC(intcode, 0, std::cout, std::cin);
 	PC.run();
+
+	//fb.close();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
