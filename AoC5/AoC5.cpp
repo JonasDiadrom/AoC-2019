@@ -41,14 +41,16 @@ protected:
 	intComputer * PC;
 	int numParams;
 	int opcode;
+	int addIP;
 	//vector mode
 private:
 	virtual void runSpecific(std::vector<int> params) =0;
 public:
-	operation(int opcode, int numParams, intComputer* PC) : numParams(numParams), opcode(opcode), PC(PC) {}
-	operation() : PC(nullptr), numParams(0), opcode(0) {}
+	operation(int opcode, int numParams, intComputer* PC) : numParams(numParams), opcode(opcode), PC(PC), addIP(numParams) {}
+	operation() : PC(nullptr), numParams(0), opcode(0), addIP(0) {}
 
 	void run(int modeCode) {
+		addIP = numParams;
 		std::vector<int> params = PC->getMemRange(PC->getIP(), numParams);
 		std::string modeCodeStr{ std::to_string(modeCode) };
 		while (modeCodeStr.length() < numParams - 1) {
@@ -62,7 +64,7 @@ public:
 		}
 
 		runSpecific(params);
-		PC->setIP(PC->getIP() + numParams);
+		PC->setIP(PC->getIP() + addIP);
 	};
 };
 
@@ -104,6 +106,52 @@ public:
 	opOutput(intComputer* PC) : operation(4, 2, PC) {}
 };
 
+class opJumpTrue : public operation {
+	void runSpecific(std::vector<int> params) override {
+		if (params[1] != 0) {
+			addIP = 0;
+			PC->setIP(params[2]);
+		}
+	}
+public:
+	opJumpTrue(intComputer* PC) : operation(5, 3, PC) {}
+};
+
+class opJumpFalse : public operation {
+	void runSpecific(std::vector<int> params) override {
+		if (params[1] == 0) {
+			addIP = 0;
+			PC->setIP(params[2]);
+		}
+	}
+public:
+	opJumpFalse(intComputer* PC) : operation(6, 3, PC) {}
+};
+
+class opLessThan : public operation {
+	void runSpecific(std::vector<int> params) override {
+		int result = 0;
+		if (params[1] < params[2]) {
+			result = 1;
+		}
+		PC->writeToAddress(PC->getAt(PC->getIP() + 3), result);
+	}
+public:
+	opLessThan(intComputer* PC) : operation(7, 4, PC) {}
+};
+
+class opEquals : public operation {
+	void runSpecific(std::vector<int> params) override {
+		int result = 0;
+		if (params[1] == params[2]) {
+			result = 1;
+		}
+		PC->writeToAddress(PC->getAt(PC->getIP() + 3), result);
+	}
+public:
+	opEquals(intComputer* PC) : operation(8, 4, PC) {}
+};
+
 class opHalt : public operation {
 	void runSpecific(std::vector<int> params) override {
 		PC->halt();
@@ -119,6 +167,13 @@ intComputer::intComputer(std::vector<int> memory, int startAddress) : memory(mem
 	operations[2] = new opMultiply(this);
 	operations[3] = new opInput(this);
 	operations[4] = new opOutput(this);
+	operations[5] = new opJumpTrue(this);
+	operations[6] = new opJumpFalse(this);
+	operations[7] = new opLessThan(this);
+	operations[8] = new opEquals(this);
+
+	/// TODO: Add ops
+
 	operations[99] = new opHalt(this);
 }
 
