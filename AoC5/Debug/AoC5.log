@@ -1,17 +1,4 @@
 ﻿  AoC5.cpp
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(25,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(31,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(32,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(40,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(41,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(52,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(61,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(69,1): error C2027: use of undefined type 'intComputer'
-C:\Users\JonasKarlsson\source\repos\AoC5\AoC5.cpp(10): message : see declaration of 'intComputer'
+C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC5\AoC5.cpp(54,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC5\AoC5.cpp(58,21): warning C4018: '<': signed/unsigned mismatch
+  AoC5.vcxproj -> C:\Users\JonasKarlsson\OneDrive - Diadrom Holding AB\Dokument\Advent of Code\AoC5\Debug\AoC5.exe

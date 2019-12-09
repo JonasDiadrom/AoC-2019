@@ -7,7 +7,34 @@
 #include <string>
 #include <map>
 
-class intComputer;
+class operation;
+
+class intComputer {
+	std::vector<int> memory;
+	int IP;
+	std::map<int, operation*> operations;
+	bool stop = false;
+public:
+	intComputer(std::vector<int> memory, int startAddress);
+	void run();
+	int getAt(int address) { return memory[address]; }
+	void setIP(int newIP) { IP = newIP; }
+	int getIP() { return IP; }
+	void writeToAddress(int index, int value);
+	void halt() { stop = true; }
+	std::vector<int> getMemRange(int index, int length);
+};
+
+std::vector<int> intComputer::getMemRange(int index, int length) {
+	if (length == 0) {
+		return {};
+	}
+	std::vector<int> output(length);
+	for (int i = 0; i < length; i++) {
+		output[i] = memory[index + i];
+	}
+	return output;
+}
 
 class operation {
 protected:
@@ -16,82 +43,84 @@ protected:
 	int opcode;
 	//vector mode
 private:
-	virtual void runSpecific() =0;
+	virtual void runSpecific(std::vector<int> params) =0;
 public:
 	operation(int opcode, int numParams, intComputer* PC) : numParams(numParams), opcode(opcode), PC(PC) {}
+	operation() : PC(nullptr), numParams(0), opcode(0) {}
 
-	void run() {
-		runSpecific();
+	void run(int modeCode) {
+		std::vector<int> params = PC->getMemRange(PC->getIP(), numParams);
+		std::string modeCodeStr{ std::to_string(modeCode) };
+		while (modeCodeStr.length() < numParams - 1) {
+			modeCodeStr = "0" + modeCodeStr;
+		}
+		std::reverse(modeCodeStr.begin(), modeCodeStr.end());
+		for (int i = 1; i < params.size(); i++) {
+			if (modeCodeStr[i-1] == '0') {
+				params[i] = PC->getAt(params[i]);
+			}
+		}
+
+		runSpecific(params);
 		PC->setIP(PC->getIP() + numParams);
 	};
 };
 
 class opAdd : public operation {
-	void runSpecific() override {
-		int result = PC->getAt(PC->getIP() + 1) + PC->getAt(PC->getIP() + 2);
-		PC->writeToAddress(PC->getIP()+3, result);
+	void runSpecific(std::vector<int> params) override {
+		int result = params[1] + params[2];
+		PC->writeToAddress(PC->getAt(PC->getIP()+3), result);
 	}
 public:
 	opAdd(intComputer* PC) : operation(1, 4, PC) {}
 };
 
 class opMultiply : public operation {
-	void runSpecific() override {
-		int result = PC->getAt(PC->getIP() + 1) * PC->getAt(PC->getIP() + 2);
-		PC->writeToAddress(PC->getIP() + 3, result);
+	void runSpecific(std::vector<int> params) override {
+		int result = params[1] * params[2];
+		PC->writeToAddress(PC->getAt(PC->getIP() + 3), result);
 	}
 public:
 	opMultiply(intComputer* PC) : operation(2, 4, PC) {}
 };
 
 class opInput : public operation {
-	void runSpecific() override {
+	void runSpecific(std::vector<int> params) override {
 		int input;
 		std::cout << "Input: ";
 		std::cin >> input;
-		PC->writeToAddress(PC->getIP() + 1, input);
+		PC->writeToAddress(PC->getAt(PC->getIP() + 1), input);
 	}
 public:
 	opInput(intComputer* PC) : operation(3, 2, PC) {}
 };
 
 class opOutput : public operation {
-	void runSpecific() override {
+	void runSpecific(std::vector<int> params) override {
 		std::cout << "Output: ";
-		std::cout << PC->getAt(PC->getIP() + 1) << std::endl;
+		std::cout << params[1] << std::endl;
 	}
 public:
 	opOutput(intComputer* PC) : operation(4, 2, PC) {}
 };
 
 class opHalt : public operation {
-	void runSpecific() override {
+	void runSpecific(std::vector<int> params) override {
 		PC->halt();
 	}
 public:
 	opHalt(intComputer* PC) : operation(99, 1, PC) {}
 };
 
-class intComputer {
-	std::vector<int> memory;
-	int IP;
-	std::map<int, operation> operations;
-	bool stop;
-public:
-	intComputer(std::vector<int> memory, int startAddress) : memory(memory), IP(startAddress) {
-		operations[1] = opAdd(this);
-		operations[2] = opMultiply(this);
-		operations[3] = opInput(this);
-		operations[4] = opOutput(this);
-		operations[99] = opHalt(this);
-	}
-	void run();
-	int getAt(int address) { return memory[address]; }
-	void setIP(int newIP) { IP = newIP; }
-	int getIP() { return IP; }
-	void writeToAddress(int index, int value);
-	void halt() { stop = true; }
-};
+
+
+intComputer::intComputer(std::vector<int> memory, int startAddress) : memory(memory), IP(startAddress) {
+	operations[1] = new opAdd(this);
+	operations[2] = new opMultiply(this);
+	operations[3] = new opInput(this);
+	operations[4] = new opOutput(this);
+	operations[99] = new opHalt(this);
+}
 
 void intComputer::writeToAddress(int index, int value) {
 	while (index >= static_cast<int>(memory.size())) {
@@ -103,7 +132,9 @@ void intComputer::writeToAddress(int index, int value) {
 void intComputer::run() {
 	stop = false;
 	while (!stop) {
-		operations[memory[IP]].run();
+		int opCode = memory[IP] % 100;
+		int modeCode = memory[IP] / 100;
+		operations[opCode]->run(modeCode);
 	}
 }
 
