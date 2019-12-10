@@ -95,11 +95,11 @@ public:
 class opInput : public operation {
 	void runSpecific(std::vector<int> params) override {
 		int input;
-		std::cout << "Input: ";
+		//std::cout << "Input: ";
 		PC->getInStream() >> input;
-		if (&(PC->getInStream()) != &(std::cin)) {
+		/*if (&(PC->getInStream()) != &(std::cin)) {
 			std::cout << input << std::endl;
-		}
+		}*/
 		PC->writeToAddress(PC->getAt(PC->getIP() + 1), input);
 	}
 public:
@@ -108,11 +108,11 @@ public:
 
 class opOutput : public operation {
 	void runSpecific(std::vector<int> params) override {
-		std::cout << "Output: ";
+		//std::cout << "Output: ";
 		PC->getOutStream() << params[1] << std::endl;
-		if (&(PC->getOutStream()) != &(std::cout)) {
+		/*if (&(PC->getOutStream()) != &(std::cout)) {
 			std::cout << params[1] << std::endl;
-		}
+		}*/
 	}
 public:
 	opOutput(intComputer* PC) : operation(4, 2, PC) {}
@@ -183,9 +183,6 @@ intComputer::intComputer(std::vector<int> memory, int startAddress, std::ostream
 	operations[6] = new opJumpFalse(this);
 	operations[7] = new opLessThan(this);
 	operations[8] = new opEquals(this);
-
-	/// TODO: Add ops
-
 	operations[99] = new opHalt(this);
 }
 
@@ -216,6 +213,8 @@ int main()
 	
 	//intComputer PC(intcode, 0, std::cout, std::cin);
 	//PC.run();
+
+	/* Part task 1
 	
 	std::vector<int> settings{ 0,1,2,3,4 }; // Pre-sorted
 
@@ -231,6 +230,50 @@ int main()
 			intComputer(intcode, 0, os, is).run();
 			std::istream(&sb) >> ampResult;
 			//std::cout << i << ": " << ampResult << std::endl;
+		}
+
+		if (ampResult > highestAmp) {
+			highestAmp = ampResult;
+		}
+	} while (std::next_permutation(settings.begin(), settings.end()));
+	std::cout << highestAmp << std::endl;
+	*/
+
+	std::vector<int> settings{ 0,1,2,3,4 }; // Pre-sorted
+	
+	int highestAmp = 0;
+
+	do {
+		std::vector<std::stringbuf> isbList(5);
+		std::vector<std::stringbuf> osbList(5);
+		std::vector<std::istream*> isList{};
+		std::vector<std::ostream*> osList{};
+		std::vector<intComputer*> PCList{};
+
+		isList.push_back(new std::istream(&isbList[0]));
+		isList.push_back(new std::istream(&isbList[1]));
+		isList.push_back(new std::istream(&isbList[2]));
+		isList.push_back(new std::istream(&isbList[3]));
+		isList.push_back(new std::istream(&isbList[4]));
+
+		osList.push_back(new std::ostream(&osbList[0]));
+		osList.push_back(new std::ostream(&osbList[1]));
+		osList.push_back(new std::ostream(&osbList[2]));
+		osList.push_back(new std::ostream(&osbList[3]));
+		osList.push_back(new std::ostream(&osbList[4]));
+
+		PCList.push_back(new intComputer(intcode, 0, *osList[0], *isList[0]));
+		PCList.push_back(new intComputer(intcode, 0, *osList[1], *isList[1]));
+		PCList.push_back(new intComputer(intcode, 0, *osList[2], *isList[2]));
+		PCList.push_back(new intComputer(intcode, 0, *osList[3], *isList[3]));
+		PCList.push_back(new intComputer(intcode, 0, *osList[4], *isList[4]));
+
+
+		int ampResult = 0;
+		for (int i = 0; i < settings.size(); i++) {
+			std::ostream(&isbList[i]) << settings[i] << " " << ampResult;
+			PCList[i]->run();
+			std::istream(&osbList[i]) >> ampResult;
 		}
 
 		if (ampResult > highestAmp) {
