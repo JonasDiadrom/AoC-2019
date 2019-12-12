@@ -8,6 +8,8 @@
 #include <map>
 #include <algorithm> // Permutations
 #include <sstream>
+#include <thread>
+#include <chrono> // Times
 
 class operation;
 
@@ -95,8 +97,14 @@ public:
 class opInput : public operation {
 	void runSpecific(std::vector<int> params) override {
 		int input;
-		//std::cout << "Input: ";
-		PC->getInStream() >> input;
+		if (&(PC->getInStream()) == &(std::cin)) {
+			std::cout << "Input: ";
+		}
+		while (!(PC->getInStream() >> input)) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			std::cout << "PC waiting" << std::endl;
+		}
+		std::cout << "PC acquired input: " << input << std::endl;
 		/*if (&(PC->getInStream()) != &(std::cin)) {
 			std::cout << input << std::endl;
 		}*/
@@ -108,7 +116,10 @@ public:
 
 class opOutput : public operation {
 	void runSpecific(std::vector<int> params) override {
-		//std::cout << "Output: ";
+		if (&(PC->getOutStream()) == &(std::cout)) {
+			std::cout << "Output: ";
+		}
+		
 		PC->getOutStream() << params[1] << std::endl;
 		/*if (&(PC->getOutStream()) != &(std::cout)) {
 			std::cout << params[1] << std::endl;
@@ -249,6 +260,7 @@ int main()
 		std::vector<std::istream*> isList{};
 		std::vector<std::ostream*> osList{};
 		std::vector<intComputer*> PCList{};
+		std::vector<std::thread> threadList{};
 
 		isList.push_back(new std::istream(&isbList[0]));
 		isList.push_back(new std::istream(&isbList[1]));
@@ -268,6 +280,52 @@ int main()
 		PCList.push_back(new intComputer(intcode, 0, *osList[3], *isList[3]));
 		PCList.push_back(new intComputer(intcode, 0, *osList[4], *isList[4]));
 
+/*		// Preload settings
+		for (int i = 0; i < settings.size(); i++) {
+			std::ostream(&isbList[i]) << settings[i];
+		}
+
+		intComputer testPC(intcode, 0, std::cout, *isList[0]);
+		std::thread t(&intComputer::run, &testPC);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		std::ostream(&isbList[0]) << " " << 0;
+*/
+		/*
+		std::stringbuf sbTest;
+		std::thread t([&sbTest]() {
+			int test;
+			while (!(std::istream(&sbTest) >> test)) {
+
+			}
+			std::cout << test;
+			});
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		int test2;
+		std::cin >> test2;
+		std::ostream(&sbTest) << test2;
+		*/
+		
+		std::stringbuf sbTest;
+		std::istream isTest(&sbTest);
+		std::thread t([&isTest]() {
+			int test;
+			while (!(isTest >> test)) {
+
+			}
+			std::cout << test;
+			});
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		int test2;
+		std::cin >> test2;
+		std::ostream(&sbTest) << test2;
+
+
+		t.join();
+
+		return 0;
 
 		int ampResult = 0;
 		for (int i = 0; i < settings.size(); i++) {
