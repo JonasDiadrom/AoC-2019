@@ -291,7 +291,7 @@ int main()
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		std::ostream(&isbList[0]) << " " << 0;
 */
-		/*
+		
 		std::stringbuf sbTest;
 		std::thread t([&sbTest]() {
 			int test;
@@ -301,12 +301,12 @@ int main()
 			std::cout << test;
 			});
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Make sure thread started
 		int test2;
 		std::cin >> test2;
 		std::ostream(&sbTest) << test2;
-		*/
 		
+		/*
 		std::stringbuf sbTest;
 		std::istream isTest(&sbTest);
 		std::thread t([&isTest]() {
@@ -317,11 +317,11 @@ int main()
 			std::cout << test;
 			});
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Make sure thread started
 		int test2;
 		std::cin >> test2;
 		std::ostream(&sbTest) << test2;
-
+		*/
 
 		t.join();
 
